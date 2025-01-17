@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CompanySchema } from './entities/company.entity';
 import { AccessSchema } from './entities/access.entity';
 import { UserSchema } from './entities/user.entity';
+import { UserCreateCommand } from './commands/user/user-create.command';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { UserSchema } from './entities/user.entity';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, UserCreateCommand],
 })
 export class AppModule {}
