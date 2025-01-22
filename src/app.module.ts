@@ -7,6 +7,7 @@ import { CompanySchema } from './entities/company.entity';
 import { AccessSchema } from './entities/access.entity';
 import { UserSchema } from './entities/user.entity';
 import { UserCreateCommand } from './commands/user/user-create.command';
+import { UserService } from './services/user.service';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserCreateCommand } from './commands/user/user-create.command';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, UserCreateCommand],
+  providers: [AppService, UserService, UserCreateCommand],
+  exports: [UserService],
 })
 export class AppModule {}
