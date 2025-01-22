@@ -28,8 +28,6 @@ export class UserService {
       lastName: data.lastName,
     });
 
-    console.log(user);
-
     return await user.save();
   }
 }

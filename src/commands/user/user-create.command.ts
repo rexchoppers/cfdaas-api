@@ -19,17 +19,18 @@ export class UserCreateCommand extends CommandRunner {
     const firstName = passedParams[1];
     const lastName = passedParams[2];
 
-    console.log(this.userService);
+    try {
+      const user = await this.userService.createUser({
+        email,
+        firstName,
+        lastName,
+      });
 
-    const user = await this.userService.createUser({
-      email,
-      firstName,
-      lastName,
-    });
-
-    console.log(user);
-
-    console.log('Called');
-    console.log(passedParams, options);
+      console.log('User created', {
+        data: user,
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
