@@ -8,6 +8,8 @@ import { AccessSchema } from './entities/access.entity';
 import { UserSchema } from './entities/user.entity';
 import { UserCreateCommand } from './commands/user/user-create.command';
 import { UserService } from './services/user.service';
+import { AccessAddCommand } from './commands/user/access-add.command';
+import { CompanyService } from './services/company.service';
 
 @Module({
   imports: [
@@ -22,7 +24,13 @@ import { UserService } from './services/user.service';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, UserService, UserCreateCommand],
-  exports: [UserService],
+  providers: [
+    AppService,
+    UserService,
+    CompanyService,
+    UserCreateCommand,
+    AccessAddCommand,
+  ],
+  exports: [UserService, CompanyService],
 })
 export class AppModule {}
