@@ -8,9 +8,6 @@ export class Company extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
   owner: Types.ObjectId;
-
-  @Prop({ type: [Types.ObjectId], ref: 'User' })
-  members: Types.ObjectId[];
 }
 
 export const CompanySchema = SchemaFactory.createForClass(Company);

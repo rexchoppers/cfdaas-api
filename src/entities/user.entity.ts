@@ -14,9 +14,6 @@ export class User extends Document {
 
   @Prop({ default: true })
   active: boolean;
-
-  @Prop({ type: [Types.ObjectId], ref: 'Company' })
-  companies: Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
