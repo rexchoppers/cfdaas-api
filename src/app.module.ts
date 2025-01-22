@@ -10,6 +10,7 @@ import { UserCreateCommand } from './commands/user/user-create.command';
 import { UserService } from './services/user.service';
 import { AccessAddCommand } from './commands/user/access-add.command';
 import { CompanyService } from './services/company.service';
+import { AccessService } from "./services/access.service";
 
 @Module({
   imports: [
@@ -28,9 +29,10 @@ import { CompanyService } from './services/company.service';
     AppService,
     UserService,
     CompanyService,
+    AccessService,
     UserCreateCommand,
     AccessAddCommand,
   ],
-  exports: [UserService, CompanyService],
+  exports: [UserService, CompanyService, AccessService],
 })
 export class AppModule {}

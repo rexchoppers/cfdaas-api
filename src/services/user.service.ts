@@ -30,4 +30,14 @@ export class UserService {
 
     return await user.save();
   }
+
+  async getUser(data: { email?: string; id?: string }) {
+    if (data.email) {
+      return this.userModel.findOne({ email: data.email });
+    }
+
+    if (data.id) {
+      return this.userModel.findById(data.id);
+    }
+  }
 }

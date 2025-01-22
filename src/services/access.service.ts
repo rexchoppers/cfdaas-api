@@ -16,10 +16,15 @@ export class AccessService {
     });
   }
 
-  async addAccess(userId: string, companyId: string) {
+  async addAccess(
+    userId: string,
+    companyId: string,
+    role: 'admin' | 'editor' | 'viewer',
+  ) {
     const access = new this.accessModel({
       user: userId,
       company: companyId,
+      role,
     });
 
     return await access.save();
