@@ -10,7 +10,8 @@ import { UserCreateCommand } from './commands/user/user-create.command';
 import { UserService } from './services/user.service';
 import { AccessAddCommand } from './commands/user/access-add.command';
 import { CompanyService } from './services/company.service';
-import { AccessService } from "./services/access.service";
+import { AccessService } from './services/access.service';
+import { CompanyCreateCommand } from './commands/user/company-create.command';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AccessService } from "./services/access.service";
     AccessService,
     UserCreateCommand,
     AccessAddCommand,
+    CompanyCreateCommand,
   ],
   exports: [UserService, CompanyService, AccessService],
 })

@@ -1,13 +1,17 @@
 import { Command, CommandRunner } from 'nest-commander';
 import { UserService } from 'src/services/user.service';
+import { CompanyService } from '../../services/company.service';
 
 @Command({
   name: 'company:create',
   arguments: '<name> <ownerEmail|ownerId>',
   description: 'Create new CFDAAS Company',
 })
-export class UserCreateCommand extends CommandRunner {
-  constructor(private readonly userService: UserService) {
+export class CompanyCreateCommand extends CommandRunner {
+  constructor(
+    private readonly userService: UserService,
+    private readonly companyService: CompanyService,
+  ) {
     super();
   }
 
@@ -27,11 +31,11 @@ export class UserCreateCommand extends CommandRunner {
       return;
     }
 
-   /* const company = await this.companyService.createCompany({
+    const company = await this.companyService.createCompany({
       name,
-      owner: owner.id,
+      owner: user,
     });
 
-    console.log('Company created:', company);*/
+    console.log('Company created:', company);
   }
 }
