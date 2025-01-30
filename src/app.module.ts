@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CompanySchema } from './entities/company.entity';
 import { AccessSchema } from './entities/access.entity';
 import { UserSchema } from './entities/user.entity';
@@ -12,6 +12,7 @@ import { AccessAddCommand } from './commands/user/access-add.command';
 import { CompanyService } from './services/company.service';
 import { AccessService } from './services/access.service';
 import { CompanyCreateCommand } from './commands/user/company-create.command';
+import { CognitoAuthModule } from '@nestjs-cognito/auth';
 
 @Module({
   imports: [
@@ -23,6 +24,20 @@ import { CompanyCreateCommand } from './commands/user/company-create.command';
     ]),
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+
+    
+    CognitoAuthModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        jwtVerifier: {
+          region: configService.get('COGNITO_REGION'),
+          userPoolId: configService.get('COGNITO_USER_POOL_ID'),
+          clientId: configService.get('COGNITO_CLIENT_ID'),
+          tokenUse: 'id',
+        },
+      }),
+      inject: [ConfigService],
     }),
   ],
   controllers: [AppController],
