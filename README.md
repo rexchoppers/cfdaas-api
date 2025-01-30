@@ -1,6 +1,6 @@
-# Commands
-
-
+# Commands - WIP
+cfdaas user:create <email> <firstName> <lastName>
+cfdaas access:add <email|id> <id> <role>
 
 
 <p align="center">
