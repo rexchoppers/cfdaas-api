@@ -21,6 +21,7 @@
     "cfdaas": "node dist/main.cli.js"
   },
   "dependencies": {
+    "@nestjs-cognito/auth": "^1.2.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^3.3.0",
     "@nestjs/core": "^9.0.0",
