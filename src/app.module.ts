@@ -25,8 +25,6 @@ import { CognitoAuthModule } from '@nestjs-cognito/auth';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-
-    
     CognitoAuthModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
