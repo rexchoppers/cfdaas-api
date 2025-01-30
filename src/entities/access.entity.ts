@@ -13,7 +13,7 @@ export class Access extends Document {
 
   @Prop({
     required: true,
-    enum: ['admin', 'editor', 'viewer'],
+    enum: ['owner', 'admin', 'editor', 'viewer'],
     default: 'viewer',
   })
   level: AccessLevel;

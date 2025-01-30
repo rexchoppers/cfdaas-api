@@ -19,7 +19,7 @@ export class AccessService {
   async addAccess(
     userId: string,
     companyId: string,
-    role: 'admin' | 'editor' | 'viewer',
+    role: 'owner' | 'admin' | 'editor' | 'viewer',
   ) {
     const access = new this.accessModel({
       user: userId,
