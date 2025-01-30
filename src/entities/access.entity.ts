@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
-export type AccessLevel = 'admin' | 'editor' | 'viewer';
+export type AccessLevel = 'owner' | 'admin' | 'editor' | 'viewer';
 
 @Schema({ timestamps: true })
 export class Access extends Document {

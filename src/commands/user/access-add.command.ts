@@ -6,7 +6,7 @@ import { AccessLevel } from '../../entities/access.entity';
 
 @Command({
   name: 'access:add',
-  arguments: '<email|id> <id> <role>',
+  arguments: '<email|id> <id> <level>',
   description: 'Add access to a company for a user',
 })
 export class AccessAddCommand extends CommandRunner {
@@ -29,8 +29,8 @@ export class AccessAddCommand extends CommandRunner {
       // Company ID
       const companyId = passedParams[1];
 
-      // Role
-      const role = passedParams[2];
+      // Level
+      const level = passedParams[2];
 
       // Find out if the identifier is an email or an ID
       const user = await this.userService.getUser({
@@ -61,8 +61,8 @@ export class AccessAddCommand extends CommandRunner {
       }
 
       // Check if role is valid
-      if (!['admin', 'editor', 'viewer'].includes(role)) {
-        console.error('Invalid role');
+      if (!['owner', 'admin', 'editor', 'viewer'].includes(level)) {
+        console.error('Invalid level');
         return;
       }
 
@@ -70,7 +70,7 @@ export class AccessAddCommand extends CommandRunner {
       await this.accessService.addAccess(
         user.id,
         company.id,
-        role as AccessLevel,
+        level as AccessLevel,
       );
 
       console.log('Access added');

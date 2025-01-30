@@ -1,6 +1,7 @@
 import { Command, CommandRunner } from 'nest-commander';
 import { UserService } from 'src/services/user.service';
 import { CompanyService } from '../../services/company.service';
+import { AccessService } from '../../services/access.service';
 
 @Command({
   name: 'company:create',
@@ -11,6 +12,7 @@ export class CompanyCreateCommand extends CommandRunner {
   constructor(
     private readonly userService: UserService,
     private readonly companyService: CompanyService,
+    private readonly accessService: AccessService,
   ) {
     super();
   }
@@ -35,6 +37,9 @@ export class CompanyCreateCommand extends CommandRunner {
       name,
       owner: user,
     });
+
+    // Create Access
+    await this.accessService.addAccess(user.id, company.id, 'owner');
 
     console.log('Company created:', company);
   }
