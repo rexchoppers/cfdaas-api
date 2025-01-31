@@ -3,9 +3,11 @@ import { UserService } from 'src/services/user.service';
 
 @Command({
   name: 'user:create',
-  arguments: '<email> <firstName> <lastName>',
+  arguments: '<email> <password> <firstName> <lastName>',
   description: 'Create new CFDAAS user',
 })
+
+//   constructor(@Inject('DYNAMODB_CLIENT') private readonly dynamoDBClient: DynamoDBClient) {}
 export class UserCreateCommand extends CommandRunner {
   constructor(private readonly userService: UserService) {
     super();
@@ -16,10 +18,12 @@ export class UserCreateCommand extends CommandRunner {
     options?: Record<string, any>,
   ): Promise<void> {
     const email = passedParams[0];
-    const firstName = passedParams[1];
-    const lastName = passedParams[2];
+    const password = passedParams[1];
+    const firstName = passedParams[2];
+    const lastName = passedParams[3];
 
     try {
+      // Create user in database
       const user = await this.userService.createUser({
         email,
         firstName,

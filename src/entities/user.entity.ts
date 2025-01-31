@@ -14,6 +14,9 @@ export class User extends Document {
 
   @Prop({ default: true })
   active: boolean;
+
+  @Prop({ required: true, unique: true })
+  cognitoId: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
