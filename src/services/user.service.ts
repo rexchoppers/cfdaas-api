@@ -5,6 +5,7 @@ import { User } from '../entities/user.entity';
 import {
   AdminCreateUserCommand,
   AdminSetUserPasswordCommand,
+  AdminUpdateUserAttributesCommand,
   CognitoIdentityProviderClient,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { ConfigService } from '@nestjs/config';
@@ -58,16 +59,36 @@ export class UserService {
           Name: 'family_name',
           Value: data.lastName,
         },
+        {
+          Name: 'email_verified',
+          Value: 'false',
+        },
       ],
     });
 
     const cognitoAdminCreateUserResponse = await this.cognito.send(command);
 
+    user.cognitoId = cognitoAdminCreateUserResponse.User.Attributes.find(
+      (attribute) => attribute.Name === 'sub',
+    )?.Value;
+
     user = await user.save();
 
-
+    // Mark the user as verified in Cognito
     if (data.cognito?.verified) {
-      // Mark the user as verified in Cognito
+      const cognitoAdminUpdateUserAttributesCommand =
+        new AdminUpdateUserAttributesCommand({
+          UserPoolId: this.configService.get('COGNITO_USER_POOL_ID'),
+          Username: data.email,
+          UserAttributes: [
+            {
+              Name: 'email_verified',
+              Value: 'true',
+            },
+          ],
+        });
+
+      await this.cognito.send(cognitoAdminUpdateUserAttributesCommand);
     }
 
     if (data.cognito?.password) {
