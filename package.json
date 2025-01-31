@@ -21,6 +21,7 @@
     "cfdaas": "node dist/main.cli.js"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.699.0",
     "@nestjs-cognito/auth": "^1.2.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^3.3.0",
