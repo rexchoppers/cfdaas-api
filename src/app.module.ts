@@ -13,6 +13,7 @@ import { CompanyService } from './services/company.service';
 import { AccessService } from './services/access.service';
 import { CompanyCreateCommand } from './commands/user/company-create.command';
 import { CognitoAuthModule } from '@nestjs-cognito/auth';
+import { CognitoIdentityProvider } from '@aws-sdk/client-cognito-identity-provider';
 
 @Module({
   imports: [
@@ -47,7 +48,21 @@ import { CognitoAuthModule } from '@nestjs-cognito/auth';
     UserCreateCommand,
     AccessAddCommand,
     CompanyCreateCommand,
+
+    {
+      provide: 'COGNITO_CLIENT',
+      useFactory: async (configService: ConfigService) => {
+        return new CognitoIdentityProvider({
+          region: configService.get('COGNITO_REGION'),
+          credentials: {
+            accessKeyId: configService.get('AWS_ACCESS_KEY_ID'),
+            secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
+          },
+        });
+      },
+      inject: [ConfigService],
+    },
   ],
-  exports: [UserService, CompanyService, AccessService],
+  exports: [UserService, CompanyService, AccessService, 'COGNITO_CLIENT'],
 })
 export class AppModule {}
