@@ -1,10 +1,17 @@
 import { Authentication, CognitoUser } from '@nestjs-cognito/auth';
-import { Controller, Get, Param, Post } from "@nestjs/common";
+import {
+  ConflictException,
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import { UserService } from '../services/user.service';
 import { plainToInstance } from 'class-transformer';
 import { GetUserResponse } from '../commands/responses/get-user.response';
-import { CompanyService } from "../services/company.service";
+import { CompanyService } from '../services/company.service';
 import { AccessService } from 'src/services/access.service';
 
 @Controller('company')
@@ -20,10 +27,23 @@ export class CompanyController {
   async generateEncryption(
     @CognitoUser() cognitoUser: CognitoJwtPayload,
     @Param('companyId') companyId: string,
-  ): Promise<GetUserResponse> {
+  ): Promise<string> {
     const user = await this.userService.getUser({ cognitoId: cognitoUser.sub });
     const company = await this.companyService.getCompany(companyId);
 
-    const access =
+    const access = await this.accessService.getAccess(user.id, company.id);
+
+    if (!access) {
+      throw new ForbiddenException();
+    }
+
+    // Check all the encryption keys
+    if (company.profileEncryptionKey) {
+      throw new ConflictException({
+        message: 'Profile encryption key already exists',
+      });
+    }
+
+    return '';
   }
 }
