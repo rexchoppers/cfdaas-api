@@ -13,7 +13,8 @@ import { CompanyService } from './services/company.service';
 import { AccessService } from './services/access.service';
 import { CompanyCreateCommand } from './commands/user/company-create.command';
 import { CognitoAuthModule } from '@nestjs-cognito/auth';
-import { CognitoIdentityProvider, CognitoIdentityProviderClient } from "@aws-sdk/client-cognito-identity-provider";
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
+import { UserController } from './controllers/user.controller';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { CognitoIdentityProvider, CognitoIdentityProviderClient } from "@aws-sdk
       inject: [ConfigService],
     }),
   ],
-  controllers: [AppController],
+  controllers: [AppController, UserController],
   providers: [
     AppService,
     UserService,
