@@ -28,6 +28,10 @@ export class UserCreateCommand extends CommandRunner {
         email,
         firstName,
         lastName,
+        cognito: {
+          password,
+          verified: true,
+        },
       });
 
       console.log('User created', {

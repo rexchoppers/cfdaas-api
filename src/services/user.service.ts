@@ -64,6 +64,7 @@ export class UserService {
           Value: 'false',
         },
       ],
+      MessageAction: 'SUPPRESS',
     });
 
     const cognitoAdminCreateUserResponse = await this.cognito.send(command);
