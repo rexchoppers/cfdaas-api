@@ -106,13 +106,17 @@ export class UserService {
     return user;
   }
 
-  async getUser(data: { email?: string; id?: string }) {
+  async getUser(data: { email?: string; id?: string; cognitoId?: string }) {
     if (data.email) {
       return this.userModel.findOne({ email: data.email });
     }
 
     if (data.id) {
       return this.userModel.findById(data.id);
+    }
+
+    if (data.cognitoId) {
+      return this.userModel.findOne({ cognitoId: data.cognitoId });
     }
   }
 }

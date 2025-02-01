@@ -1,7 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+}) // ✅ Ensures `_id` becomes `id`
 export class User extends Document {
   @Prop({ required: true, unique: true })
   email: string;
@@ -20,3 +24,7 @@ export class User extends Document {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.virtual('id').get(function () {
+  return this._id.toString();
+});
