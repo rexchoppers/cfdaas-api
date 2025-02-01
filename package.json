@@ -29,6 +29,7 @@
     "@nestjs/mongoose": "^10.1.0",
     "@nestjs/platform-express": "^9.0.0",
     "class-transformer": "^0.5.1",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "mongoose": "^8.9.5",
     "nest-commander": "^3.15.0",
