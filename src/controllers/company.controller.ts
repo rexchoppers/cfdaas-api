@@ -26,7 +26,7 @@ export class CompanyController {
     private readonly masterEncryptionService: MasterEncryptionService,
   ) {}
 
-  @Post(':companyId/encryption/generate')
+  @Post('/:companyId/encryption/generate')
   async generateEncryption(
     @CognitoUser() cognitoUser: CognitoJwtPayload,
     @Param('companyId') companyId: string,
@@ -48,11 +48,16 @@ export class CompanyController {
     }
 
     // Generate the encryption key
-    const encryptionKey = randomBytes(32).toString('hex');
+    const profileEncryptionKey = randomBytes(32).toString('hex');
 
     // Encrypt the key with the master encryption key
-    const encryptedKey =
-      this.masterEncryptionService.encryptMaster(encryptionKey);
+    const encryptedProfileEncryptionKey =
+      this.masterEncryptionService.encryptMaster(profileEncryptionKey);
+
+    // Save the encrypted key to the company
+    await this.companyService.updateCompany(company.id, {
+      profileEncryptionKey: encryptedProfileEncryptionKey,
+    });
 
     return '';
   }

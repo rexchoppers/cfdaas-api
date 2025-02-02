@@ -22,4 +22,22 @@ export class CompanyService {
 
     return await company.save();
   }
+
+  async updateCompany(id: string, data) {
+    // Fetch the company
+    const company = await this.companyModel.findById(id);
+
+    // If company doesn't exist, return null (or throw an error)
+    if (!company) {
+      return null;
+    }
+
+    const updatedData = {
+      ...company.toObject(),
+      ...data,
+    };
+
+    // Update only if necessary
+    return this.companyModel.findByIdAndUpdate(id, updatedData, { new: true });
+  }
 }

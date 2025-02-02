@@ -15,9 +15,15 @@ import { CompanyCreateCommand } from './commands/user/company-create.command';
 import { CognitoAuthModule } from '@nestjs-cognito/auth';
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { UserController } from './controllers/user.controller';
+import { DevtoolsModule } from '@nestjs/devtools-integration';
+import { CompanyController } from './controllers/company.controller';
+import { MasterEncryptionService } from './services/master-encryption.service';
 
 @Module({
   imports: [
+    DevtoolsModule.register({
+      http: process.env.NODE_ENV !== 'production',
+    }),
     MongooseModule.forRoot(process.env.MONGO_URI),
     MongooseModule.forFeature([
       { name: 'Company', schema: CompanySchema },
@@ -40,11 +46,12 @@ import { UserController } from './controllers/user.controller';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AppController, UserController],
+  controllers: [AppController, UserController, CompanyController],
   providers: [
     AppService,
     UserService,
     CompanyService,
+    MasterEncryptionService,
     AccessService,
     UserCreateCommand,
     AccessAddCommand,
@@ -64,6 +71,12 @@ import { UserController } from './controllers/user.controller';
       inject: [ConfigService],
     },
   ],
-  exports: [UserService, CompanyService, AccessService, 'COGNITO_CLIENT'],
+  exports: [
+    UserService,
+    CompanyService,
+    MasterEncryptionService,
+    AccessService,
+    'COGNITO_CLIENT',
+  ],
 })
 export class AppModule {}
