@@ -13,6 +13,8 @@ import { plainToInstance } from 'class-transformer';
 import { GetUserResponse } from '../commands/responses/get-user.response';
 import { CompanyService } from '../services/company.service';
 import { AccessService } from 'src/services/access.service';
+import { randomBytes } from 'crypto';
+import { MasterEncryptionService } from '../services/master-encryption.service';
 
 @Controller('company')
 @Authentication()
@@ -21,6 +23,7 @@ export class CompanyController {
     private readonly userService: UserService,
     private readonly companyService: CompanyService,
     private readonly accessService: AccessService,
+    private readonly masterEncryptionService: MasterEncryptionService,
   ) {}
 
   @Post(':companyId/encryption/generate')
@@ -43,6 +46,13 @@ export class CompanyController {
         message: 'Profile encryption key already exists',
       });
     }
+
+    // Generate the encryption key
+    const encryptionKey = randomBytes(32).toString('hex');
+
+    // Encrypt the key with the master encryption key
+    const encryptedKey =
+      this.masterEncryptionService.encryptMaster(encryptionKey);
 
     return '';
   }
