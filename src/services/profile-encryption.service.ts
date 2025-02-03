@@ -1,118 +1,132 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CipherGCM,
   createCipheriv,
   createDecipheriv,
-  DecipherGCM,
   randomBytes,
 } from 'crypto';
 import { MasterEncryptionService } from './master-encryption.service';
 
 @Injectable()
 export class ProfileEncryptionService {
-  private readonly algorithm = 'aes-256-cbc';
-  private readonly masterKey: Buffer;
+  private readonly algorithm = 'aes-256-gcm';
 
   constructor(
     private readonly masterEncryptionService: MasterEncryptionService,
   ) {}
 
-  private encryptProfileDataLayer(
+  // 🔐 Encrypt JSON data (string format) using Profile Key
+  private encryptProfileData(
     data: string,
-    profileEncryptionKey: string,
+    profileEncryptionKey: Buffer,
   ): { encryptedData: string; iv: string; authTag: string } {
-    const iv = Buffer.alloc(16, 0); // Using a zero IV for deterministic encryption per user
-    const cipher: CipherGCM = createCipheriv(
-      'aes-256-gcm',
-      Buffer.from(profileEncryptionKey, 'hex'),
-      iv,
-    ) as CipherGCM; // ✅ Explicitly type as CipherGCM
+    const iv = randomBytes(16); // ✅ Generate a secure IV
+    const cipher = createCipheriv(this.algorithm, profileEncryptionKey, iv);
 
     let encrypted = cipher.update(data, 'utf-8');
     encrypted = Buffer.concat([encrypted, cipher.final()]);
 
     return {
-      encryptedData: encrypted.toString('hex'),
-      iv: iv.toString('hex'),
-      authTag: cipher.getAuthTag().toString('hex'),
+      encryptedData: encrypted.toString('base64'),
+      iv: iv.toString('base64'),
+      authTag: cipher.getAuthTag().toString('base64'),
     };
   }
 
-  private decryptProfileDataLayer(
+  private decryptProfileData(
     encryptedData: string,
     iv: string,
     authTag: string,
-    profileEncryptionKey: string,
+    profileEncryptionKey: Buffer,
   ): string {
-    const decipher: DecipherGCM = createDecipheriv(
-      'aes-256-gcm',
-      Buffer.from(profileEncryptionKey, 'hex'),
-      Buffer.from(iv, 'hex'),
-    ) as DecipherGCM; // ✅ Explicitly type as DecipherGCM
-    decipher.setAuthTag(Buffer.from(authTag, 'hex')); // ✅ Ensure setAuthTag() is recognized
+    const decipher = createDecipheriv(
+      this.algorithm,
+      profileEncryptionKey,
+      Buffer.from(iv, 'base64'),
+    );
+    decipher.setAuthTag(Buffer.from(authTag, 'base64'));
 
-    let decrypted = decipher.update(Buffer.from(encryptedData, 'hex'));
+    let decrypted = decipher.update(Buffer.from(encryptedData, 'base64'));
     decrypted = Buffer.concat([decrypted, decipher.final()]);
 
     return decrypted.toString('utf-8');
   }
 
   encryptProfile(
-    data: string,
-    profileEncryptionKey: string,
+    jsonData: string,
+    encryptedProfileKey: string,
   ): {
-    encryptedData: string;
-    iv: string;
-    authTag: string;
-    encryptedProfileKey: string;
+    encryptedProfileData: string;
+    encryptedIv: string;
+    encryptedAuthTag: string;
   } {
-    // 🔐 Step 1: Encrypt profile data using AES-256-GCM
-    const encryptedProfile = this.encryptProfileDataLayer(
-      data,
+    // 🔓 Step 1: Decrypt the Profile Key using the Master Key (AES-256-CBC)
+    const profileEncryptionKeyHex = this.masterEncryptionService.decryptMaster(
+      encryptedProfileKey,
+      encryptedProfileKey,
+    );
+    const profileEncryptionKey = Buffer.from(profileEncryptionKeyHex, 'hex'); // Convert to raw bytes
+
+    // 🔐 Step 2: Encrypt JSON with Profile Key (AES-256-GCM)
+    const encryptedProfile = this.encryptProfileData(
+      jsonData,
       profileEncryptionKey,
     );
 
-    // 🔐 Step 2: Encrypt the already encrypted profile data using Master Encryption (AES-256-CBC)
-    const doubleEncryptedProfileData =
-      this.masterEncryptionService.encryptMaster(
-        encryptedProfile.encryptedData,
-      );
+    // 🔐 Step 3: Encrypt profileEncryptedData with Master Key (AES-256-CBC)
+    const encryptedProfileData = this.masterEncryptionService.encryptMaster(
+      encryptedProfile.encryptedData,
+    );
 
-    // 🔑 Step 3: Encrypt `profileEncryptionKey` using Master Encryption (AES-256-CBC)
-    const encryptedProfileKey =
-      this.masterEncryptionService.encryptMaster(profileEncryptionKey);
+    // 🔐 Step 4: Encrypt IV & AuthTag separately with Master Key
+    const encryptedIv = this.masterEncryptionService.encryptMaster(
+      encryptedProfile.iv,
+    );
+    const encryptedAuthTag = this.masterEncryptionService.encryptMaster(
+      encryptedProfile.authTag,
+    );
 
     return {
-      encryptedData: doubleEncryptedProfileData,
-      iv: encryptedProfile.iv,
-      authTag: encryptedProfile.authTag,
-      encryptedProfileKey, // ✅ This will be stored in MongoDB
+      encryptedProfileData, // ✅ Double-encrypted JSON data
+      encryptedIv, // ✅ IV encrypted with Master Key
+      encryptedAuthTag, // ✅ AuthTag encrypted with Master Key
     };
   }
 
-  // ✅ Public Method: Decrypt Profile Data
   decryptProfile(
-    encryptedData: string,
-    iv: string,
-    authTag: string,
+    encryptedProfileData: string,
+    encryptedIv: string,
+    encryptedAuthTag: string,
     encryptedProfileKey: string,
   ): string {
-    // 🔓 Step 1: Decrypt the encrypted profile data using Master Encryption Service (AES-256-CBC)
-    const decryptedEncryptedProfileData =
-      this.masterEncryptionService.decryptMaster(encryptedData, encryptedData);
-
-    // 🔓 Step 2: Decrypt `profileEncryptionKey` using Master Encryption Service (AES-256-CBC)
-    const decryptedProfileKey = this.masterEncryptionService.decryptMaster(
+    // 🔓 Step 1: Decrypt the Profile Key using the Master Key
+    const profileEncryptionKeyHex = this.masterEncryptionService.decryptMaster(
       encryptedProfileKey,
       encryptedProfileKey,
     );
+    const profileEncryptionKey = Buffer.from(profileEncryptionKeyHex, 'hex'); // Convert to raw bytes
 
-    // 🔓 Step 3: Decrypt profile data using AES-256-GCM with the decrypted profile key
-    return this.decryptProfileDataLayer(
-      decryptedEncryptedProfileData,
-      iv,
-      authTag,
-      decryptedProfileKey,
+    // 🔓 Step 2: Decrypt IV & AuthTag using Master Key
+    const iv = this.masterEncryptionService.decryptMaster(
+      encryptedIv,
+      encryptedIv,
+    );
+    const authTag = this.masterEncryptionService.decryptMaster(
+      encryptedAuthTag,
+      encryptedAuthTag,
+    );
+
+    // 🔓 Step 3: Decrypt the JSON data using Master Key
+    const decryptedJsonString = this.masterEncryptionService.decryptMaster(
+      encryptedProfileData,
+      encryptedProfileData,
+    );
+
+    // 🔓 Step 4: Decrypt JSON with Profile Key (AES-256-GCM)
+    return this.decryptProfileData(
+      decryptedJsonString,
+      iv, // ✅ Using decrypted IV
+      authTag, // ✅ Using decrypted AuthTag
+      profileEncryptionKey, // ✅ Using decrypted Profile Key
     );
   }
 }
