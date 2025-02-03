@@ -3,11 +3,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Company } from '../entities/company.entity';
 import { User } from '../entities/user.entity';
+import { Access } from '../entities/access.entity';
+import { UserService } from './user.service';
 
 @Injectable()
 export class CompanyService {
   constructor(
+    private readonly userService: UserService,
     @InjectModel(Company.name) private readonly companyModel: Model<Company>,
+    @InjectModel(Access.name) private readonly accessModel: Model<Access>,
   ) {}
 
   async getCompany(id: string) {

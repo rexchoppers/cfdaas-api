@@ -10,6 +10,9 @@ export class AccessResponse {
   company: CompanyResponse;
 
   @Expose()
+  level: string;
+
+  @Expose()
   createdAt: Date;
 
   @Expose()

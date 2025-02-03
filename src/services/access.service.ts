@@ -16,6 +16,10 @@ export class AccessService {
     });
   }
 
+  async getAccesses(userId: string) {
+    return this.accessModel.find({ user: userId }).populate('company').exec();
+  }
+
   async addAccess(
     userId: string,
     companyId: string,
