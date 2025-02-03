@@ -30,7 +30,11 @@ export class CompanyController {
   async generateEncryption(
     @CognitoUser() cognitoUser: CognitoJwtPayload,
     @Param('companyId') companyId: string,
-  ): Promise<string> {
+  ): Promise<{
+    data: {
+      success: boolean;
+    };
+  }> {
     const user = await this.userService.getUser({ cognitoId: cognitoUser.sub });
     const company = await this.companyService.getCompany(companyId);
 
@@ -50,15 +54,35 @@ export class CompanyController {
     // Generate the encryption key
     const profileEncryptionKey = randomBytes(32).toString('hex');
 
+    console.log('Generated key:', profileEncryptionKey);
+    console.log(
+      'Generated key (Raw):',
+      Buffer.from(profileEncryptionKey, 'hex'),
+    );
+
     // Encrypt the key with the master encryption key
     const encryptedProfileEncryptionKey =
       this.masterEncryptionService.encryptMaster(profileEncryptionKey);
+
+    console.log('Encrypted key:', encryptedProfileEncryptionKey);
 
     // Save the encrypted key to the company
     await this.companyService.updateCompany(company.id, {
       profileEncryptionKey: encryptedProfileEncryptionKey,
     });
 
-    return '';
+    const decryptedProfileKeyHex = this.masterEncryptionService.decryptMaster(
+      encryptedProfileEncryptionKey,
+      profileEncryptionKey,
+    );
+    const decryptedProfileKey = Buffer.from(decryptedProfileKeyHex, 'hex'); // Convert back to raw bytes
+
+    console.log('Decrypted Profile Encryption Key (Raw):', decryptedProfileKey);
+
+    return {
+      data: {
+        success: true,
+      },
+    };
   }
 }
