@@ -19,6 +19,8 @@ import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { CompanyController } from './controllers/company.controller';
 import { MasterEncryptionService } from './services/master-encryption.service';
 import { ProfileEncryptionService } from './services/profile-encryption.service';
+import { ProfileController } from './controllers/profile.controller';
+import { AccessController } from './controllers/access.controller';
 
 @Module({
   imports: [
@@ -47,7 +49,13 @@ import { ProfileEncryptionService } from './services/profile-encryption.service'
       inject: [ConfigService],
     }),
   ],
-  controllers: [AppController, UserController, CompanyController],
+  controllers: [
+    AppController,
+    UserController,
+    CompanyController,
+    ProfileController,
+    AccessController,
+  ],
   providers: [
     AppService,
     UserService,
