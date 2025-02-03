@@ -18,6 +18,7 @@ import { UserController } from './controllers/user.controller';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { CompanyController } from './controllers/company.controller';
 import { MasterEncryptionService } from './services/master-encryption.service';
+import { ProfileEncryptionService } from './services/profile-encryption.service';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { MasterEncryptionService } from './services/master-encryption.service';
     UserService,
     CompanyService,
     MasterEncryptionService,
+    ProfileEncryptionService,
     AccessService,
     UserCreateCommand,
     AccessAddCommand,
@@ -75,6 +77,7 @@ import { MasterEncryptionService } from './services/master-encryption.service';
     UserService,
     CompanyService,
     MasterEncryptionService,
+    ProfileEncryptionService,
     AccessService,
     'COGNITO_CLIENT',
   ],
