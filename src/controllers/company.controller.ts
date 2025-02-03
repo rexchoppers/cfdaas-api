@@ -10,7 +10,6 @@ import {
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import { UserService } from '../services/user.service';
 import { plainToInstance } from 'class-transformer';
-import { GetUserResponse } from '../commands/responses/get-user.response';
 import { CompanyService } from '../services/company.service';
 import { AccessService } from 'src/services/access.service';
 import { randomBytes } from 'crypto';

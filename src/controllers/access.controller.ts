@@ -5,13 +5,13 @@ import { UserService } from '../services/user.service';
 import { plainToInstance } from 'class-transformer';
 import { GetUserResponse } from '../responses/get-user.response';
 
-@Controller('user')
+@Controller('access')
 @Authentication()
-export class UserController {
+export class AccessController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async getUser(
+  async getAccesses(
     @CognitoUser() cognitoUser: CognitoJwtPayload,
   ): Promise<GetUserResponse> {
     const sub = cognitoUser.sub;
