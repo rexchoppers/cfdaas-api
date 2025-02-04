@@ -21,6 +21,7 @@ import { ProfileController } from './controllers/profile.controller';
 import { AccessController } from './controllers/access.controller';
 import { AwsSecretsManagerService } from './services/aws/aws-secrets-manager.service';
 import { ProfileSchema } from './entities/profile.entity';
+import { ProfileService } from './services/profile.service';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { ProfileSchema } from './entities/profile.entity';
     UserService,
     CompanyService,
     AccessService,
+    ProfileService,
     AwsSecretsManagerService,
     UserCreateCommand,
     AccessAddCommand,
@@ -85,6 +87,7 @@ import { ProfileSchema } from './entities/profile.entity';
     UserService,
     CompanyService,
     AccessService,
+    ProfileService,
     AwsSecretsManagerService,
     'COGNITO_CLIENT',
   ],
