@@ -17,10 +17,10 @@ import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-
 import { UserController } from './controllers/user.controller';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { CompanyController } from './controllers/company.controller';
-import { MasterEncryptionService } from './services/master-encryption.service';
-import { ProfileEncryptionService } from './services/profile-encryption.service';
 import { ProfileController } from './controllers/profile.controller';
 import { AccessController } from './controllers/access.controller';
+import { AwsSecretsManagerService } from './services/aws/aws-secrets-manager.service';
+import { ProfileSchema } from './entities/profile.entity';
 
 @Module({
   imports: [
@@ -32,6 +32,7 @@ import { AccessController } from './controllers/access.controller';
       { name: 'Company', schema: CompanySchema },
       { name: 'Access', schema: AccessSchema },
       { name: 'User', schema: UserSchema },
+      { name: 'Profile', schema: ProfileSchema },
     ]),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -60,9 +61,8 @@ import { AccessController } from './controllers/access.controller';
     AppService,
     UserService,
     CompanyService,
-    MasterEncryptionService,
-    ProfileEncryptionService,
     AccessService,
+    AwsSecretsManagerService,
     UserCreateCommand,
     AccessAddCommand,
     CompanyCreateCommand,
@@ -84,9 +84,8 @@ import { AccessController } from './controllers/access.controller';
   exports: [
     UserService,
     CompanyService,
-    MasterEncryptionService,
-    ProfileEncryptionService,
     AccessService,
+    AwsSecretsManagerService,
     'COGNITO_CLIENT',
   ],
 })

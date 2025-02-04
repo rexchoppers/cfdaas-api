@@ -12,7 +12,6 @@ import { UserService } from '../services/user.service';
 import { CompanyService } from '../services/company.service';
 import { AccessService } from 'src/services/access.service';
 import { randomBytes } from 'crypto';
-import { MasterEncryptionService } from '../services/master-encryption.service';
 import { CompanyResponse } from '../responses/company.response';
 import { plainToInstance } from 'class-transformer';
 
@@ -23,7 +22,6 @@ export class CompanyController {
     private readonly userService: UserService,
     private readonly companyService: CompanyService,
     private readonly accessService: AccessService,
-    private readonly masterEncryptionService: MasterEncryptionService,
   ) {}
 
   @Get('/:companyId')
