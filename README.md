@@ -21,5 +21,4 @@ Leave an issue in the issues section
 - Website - [https://www.rexchoppers.com](https://www.rexchoppers.com)
 
 ## License
-
-Nest is [MIT licensed](LICENSE).
+Licensed under GPL v3.0
