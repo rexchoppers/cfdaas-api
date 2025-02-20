@@ -61,8 +61,6 @@ export class ProfileController {
       throw new ForbiddenException();
     }
 
-    console.log("Creating profile...");
-
     return 'test';
   }
 }

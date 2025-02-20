@@ -1,10 +1,5 @@
 import { Authentication, CognitoUser } from '@nestjs-cognito/auth';
-import {
-  Controller,
-  ForbiddenException,
-  Get,
-  Param,
-} from '@nestjs/common';
+import { Controller, ForbiddenException, Get, Param } from '@nestjs/common';
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import { UserService } from '../services/user.service';
 import { CompanyService } from '../services/company.service';
