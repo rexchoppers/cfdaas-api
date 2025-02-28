@@ -68,6 +68,13 @@ export class AccessService {
     return this.accessModel.find({ user: userId }).populate('company').exec();
   }
 
+  async getAccessesByCompany(companyId: string) {
+    return this.accessModel
+      .find({ company: companyId })
+      .populate('user')
+      .exec();
+  }
+
   async addAccess(
     userId: string,
     companyId: string,

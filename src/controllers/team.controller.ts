@@ -3,9 +3,9 @@ import { Controller, ForbiddenException, Get, Param } from '@nestjs/common';
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import { UserService } from '../services/user.service';
 import { plainToInstance } from 'class-transformer';
-import { GetUserResponse } from '../responses/get-user.response';
-import { AccessService } from "../services/access.service";
-import { CompanyService } from "../services/company.service";
+import { AccessService } from '../services/access.service';
+import { CompanyService } from '../services/company.service';
+import { AccessResponse } from '../responses/access.response';
 
 @Controller()
 @Authentication()
@@ -20,7 +20,7 @@ export class TeamController {
   async getTeam(
     @CognitoUser() cognitoUser: CognitoJwtPayload,
     @Param('companyId') companyId: string,
-  ) {
+  ): Promise<AccessResponse[]> {
     const user = await this.userService.getUser({ cognitoId: cognitoUser.sub });
     const company = await this.companyService.getCompany(companyId);
 
@@ -35,6 +35,12 @@ export class TeamController {
       throw new ForbiddenException();
     }
 
-    
+    // Get all the accesses for a company
+    const accesses = await this.accessService.getAccessesByCompany(companyId);
+
+    // Return all accesses for a company
+    return plainToInstance(AccessResponse, accesses, {
+      excludeExtraneousValues: true,
+    });
   }
 }
