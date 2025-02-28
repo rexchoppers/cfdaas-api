@@ -22,6 +22,7 @@ import { AccessController } from './controllers/access.controller';
 import { AwsSecretsManagerService } from './services/aws/aws-secrets-manager.service';
 import { ProfileSchema } from './entities/profile.entity';
 import { ProfileService } from './services/profile.service';
+import { TeamController } from "./controllers/team.controller";
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { ProfileService } from './services/profile.service';
     CompanyController,
     ProfileController,
     AccessController,
+    TeamController,
   ],
   providers: [
     AppService,
