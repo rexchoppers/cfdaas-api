@@ -14,7 +14,7 @@ export class AccessService {
     companyId: string,
     resource: string,
     action: 'view' | 'edit' | 'delete',
-  ) {
+  ): Promise<{ can: boolean; access?: Access }> {
     const ownerOnly = {
       company: 'delete',
     };
@@ -27,17 +27,17 @@ export class AccessService {
 
     // If the access has not been found, don't allow the action
     if (!access) {
-      return false;
+      return { can: false };
     }
 
     // Owners can do anything
     if (access.level === 'owner') {
-      return true;
+      return { can: true, access };
     }
 
     // Admins can do anything except what's defined in the ownerOnly object
     if (access.level === 'admin' && !ownerOnly[resource]) {
-      return true;
+      return { can: true, access };
     }
 
     // Editors can only do anything that isn't in the adminOnly or ownerOnly objects
@@ -46,15 +46,15 @@ export class AccessService {
       !adminOnly[resource] &&
       !ownerOnly[resource]
     ) {
-      return true;
+      return { can: true, access };
     }
 
     // Viewers can only view
     if (access.level === 'viewer' && action === 'view') {
-      return true;
+      return { can: true, access };
     }
 
-    return false;
+    return { can: false };
   }
 
   async getAccess(userId: string, companyId: string) {
