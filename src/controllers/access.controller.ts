@@ -28,4 +28,9 @@ export class AccessController {
       excludeExtraneousValues: true,
     });
   }
+
+  @Get('level')
+  async getAccessLevel(): Promise<string[]> {
+    return ['owner', 'admin', 'editor', 'viewer'];
+  }
 }
