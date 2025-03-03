@@ -1,13 +1,21 @@
 import { Authentication, CognitoUser } from '@nestjs-cognito/auth';
-import { Body, Controller, ForbiddenException, Get, Param, Post, ValidationPipe } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Post,
+  ValidationPipe,
+} from '@nestjs/common';
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import { UserService } from '../services/user.service';
 import { plainToInstance } from 'class-transformer';
 import { AccessService } from '../services/access.service';
 import { CompanyService } from '../services/company.service';
 import { AccessResponse } from '../responses/access.response';
-import { CreateProfileRequest } from "../requests/create-profile.request";
-import { CreateUserRequest } from "../requests/create-user.request";
+import { CreateUserRequest } from '../requests/create-user.request';
+import { UserResponse } from '../responses/user.response';
 
 @Controller()
 @Authentication()
@@ -51,9 +59,8 @@ export class TeamController {
     @CognitoUser() cognitoUser: CognitoJwtPayload,
     @Param('companyId') companyId: string,
     @Body(ValidationPipe) createUserRequest: CreateUserRequest,
-  ) {
+  ): Promise<UserResponse> {
     const user = await this.userService.getUser({ cognitoId: cognitoUser.sub });
-    const company = await this.companyService.getCompany(companyId);
 
     const access = await this.accessService.canPerformAction(
       user.id,
@@ -77,6 +84,15 @@ export class TeamController {
       },
     });
 
+    // Add the access for the new user
+    await this.accessService.addAccess(
+      newUser.id,
+      companyId,
+      createUserRequest.level,
+    );
 
+    return plainToInstance(UserResponse, newUser, {
+      excludeExtraneousValues: true,
+    });
   }
 }
