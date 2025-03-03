@@ -1,11 +1,13 @@
 import { Authentication, CognitoUser } from '@nestjs-cognito/auth';
-import { Controller, ForbiddenException, Get, Param } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Param, Post, ValidationPipe } from "@nestjs/common";
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import { UserService } from '../services/user.service';
 import { plainToInstance } from 'class-transformer';
 import { AccessService } from '../services/access.service';
 import { CompanyService } from '../services/company.service';
 import { AccessResponse } from '../responses/access.response';
+import { CreateProfileRequest } from "../requests/create-profile.request";
+import { CreateUserRequest } from "../requests/create-user.request";
 
 @Controller()
 @Authentication()
@@ -42,5 +44,39 @@ export class TeamController {
     return plainToInstance(AccessResponse, accesses, {
       excludeExtraneousValues: true,
     });
+  }
+
+  @Post('/company/:companyId/team')
+  async createTeam(
+    @CognitoUser() cognitoUser: CognitoJwtPayload,
+    @Param('companyId') companyId: string,
+    @Body(ValidationPipe) createUserRequest: CreateUserRequest,
+  ) {
+    const user = await this.userService.getUser({ cognitoId: cognitoUser.sub });
+    const company = await this.companyService.getCompany(companyId);
+
+    const access = await this.accessService.canPerformAction(
+      user.id,
+      companyId,
+      'team',
+      'edit',
+    );
+
+    if (!access.can) {
+      throw new ForbiddenException();
+    }
+
+    // Create a new user
+    const newUser = await this.userService.createUser({
+      email: createUserRequest.email,
+      firstName: createUserRequest.firstName,
+      lastName: createUserRequest.lastName,
+      cognito: {
+        password: createUserRequest.password,
+        verified: true,
+      },
+    });
+
+
   }
 }
