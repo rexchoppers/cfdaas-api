@@ -8,6 +8,7 @@ async function bootstrap() {
   app.useLogger(['log', 'error', 'warn', 'debug', 'verbose']);
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.enableCors();
 
   await app.listen(3000);
 }
