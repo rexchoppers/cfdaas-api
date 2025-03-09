@@ -4,11 +4,14 @@ import { Model } from 'mongoose';
 import { User } from '../entities/user.entity';
 import {
   AdminCreateUserCommand,
+  AdminDeleteUserCommand,
   AdminSetUserPasswordCommand,
   AdminUpdateUserAttributesCommand,
   CognitoIdentityProviderClient,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { ConfigService } from '@nestjs/config';
+import { CompanyService } from './company.service';
+import { AccessService } from './access.service';
 
 @Injectable()
 export class UserService {
@@ -17,6 +20,8 @@ export class UserService {
     @Inject('COGNITO_CLIENT')
     private readonly cognito: CognitoIdentityProviderClient,
     private readonly configService: ConfigService,
+    private readonly companyService: CompanyService,
+    private readonly accessService: AccessService,
   ) {}
 
   async createUser(data: {
@@ -118,5 +123,25 @@ export class UserService {
     if (data.cognitoId) {
       return this.userModel.findOne({ cognitoId: data.cognitoId });
     }
+  }
+
+  async deleteUser(data: { id: string; companyId: string }) {
+    const user = await this.userModel.findById(data.id);
+    const company = await this.companyService.getCompany(data.companyId);
+    const access = await this.accessService.getAccess(user.id, company.id);
+
+    // Delete access
+    access.deleteOne();
+
+    // Delete user
+    user.deleteOne();
+
+    // Delete user in Cognito
+    const command = new AdminDeleteUserCommand({
+      UserPoolId: this.configService.get('COGNITO_USER_POOL_ID'),
+      Username: user.email,
+    });
+
+    await this.cognito.send(command);
   }
 }
