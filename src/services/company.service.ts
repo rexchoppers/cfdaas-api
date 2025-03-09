@@ -9,7 +9,6 @@ import { UserService } from './user.service';
 @Injectable()
 export class CompanyService {
   constructor(
-    private readonly userService: UserService,
     @InjectModel(Company.name) private readonly companyModel: Model<Company>,
     @InjectModel(Access.name) private readonly accessModel: Model<Access>,
   ) {}
