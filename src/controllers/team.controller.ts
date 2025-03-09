@@ -59,17 +59,17 @@ export class TeamController {
     @CognitoUser() cognitoUser: CognitoJwtPayload,
     @Param('companyId') companyId: string,
     @Body(ValidationPipe) createUserRequest: CreateUserRequest,
-  ): Promise<UserResponse> {
+  ): Promise<AccessResponse> {
     const user = await this.userService.getUser({ cognitoId: cognitoUser.sub });
 
-    const access = await this.accessService.canPerformAction(
+    const userAccess = await this.accessService.canPerformAction(
       user.id,
       companyId,
       'team',
       'edit',
     );
 
-    if (!access.can) {
+    if (!userAccess.can) {
       throw new ForbiddenException();
     }
 
@@ -85,13 +85,13 @@ export class TeamController {
     });
 
     // Add the access for the new user
-    await this.accessService.addAccess(
+    const access = await this.accessService.addAccess(
       newUser.id,
       companyId,
       createUserRequest.level,
     );
 
-    return plainToInstance(UserResponse, newUser, {
+    return plainToInstance(AccessResponse, access, {
       excludeExtraneousValues: true,
     });
   }
