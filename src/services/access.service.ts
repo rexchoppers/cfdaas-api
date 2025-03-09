@@ -18,7 +18,12 @@ export class AccessService {
     {
       resource: 'team',
       action: 'edit',
-      levels: ['owner', 'admin'],
+      levels: ['owner', 'admin', 'editor'],
+    },
+    {
+      resource: 'team',
+      action: 'delete',
+      levels: ['owner', 'admin', 'editor'],
     },
   ];
 
@@ -40,43 +45,37 @@ export class AccessService {
     userId: string,
     companyId: string,
     resource: string,
-    action: 'view' | 'edit' | 'delete',
+    action: string,
   ): Promise<{ can: boolean; access?: Access }> {
-    const ownerOnly = {
-      company: 'delete',
-    };
-
-    const adminOnly = {
-      team: 'edit',
-    };
-
+    // Fetch user's access level for the given company
     const access = await this.getAccess(userId, companyId);
 
-    // If the access has not been found, don't allow the action
+    // If no access found, deny the action
     if (!access) {
       return { can: false };
     }
 
-    // Owners can do anything
+    // Owners can perform all actions
     if (access.level === 'owner') {
       return { can: true, access };
     }
 
-    // Admins can do anything except what's defined in the ownerOnly object
-    if (access.level === 'admin' && !ownerOnly[resource]) {
+    // Find the matching permission rule for the requested action on the resource
+    const permission = this.PERMISSIONS.find(
+      (perm) => perm.resource === resource && perm.action === action,
+    );
+
+    // If no permission rule exists for this action, deny by default
+    if (!permission) {
+      return { can: false };
+    }
+
+    // Check if the user's access level is allowed to perform the action
+    if (permission.levels.includes(access.level)) {
       return { can: true, access };
     }
 
-    // Editors can only do anything that isn't in the adminOnly or ownerOnly objects
-    if (
-      access.level === 'editor' &&
-      !adminOnly[resource] &&
-      !ownerOnly[resource]
-    ) {
-      return { can: true, access };
-    }
-
-    // Viewers can only view
+    // Viewers can only view, and only if explicitly allowed in PERMISSIONS
     if (access.level === 'viewer' && action === 'view') {
       return { can: true, access };
     }
