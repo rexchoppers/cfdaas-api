@@ -5,10 +5,37 @@ import { Access } from '../entities/access.entity';
 
 @Injectable()
 export class AccessService {
+  PERMISSIONS: {
+    resource: string;
+    action: string;
+    levels: string[];
+  }[] = [
+    {
+      resource: 'company',
+      action: 'delete',
+      levels: ['owner'],
+    },
+    {
+      resource: 'team',
+      action: 'edit',
+      levels: ['owner', 'admin'],
+    },
+  ];
+
   constructor(
     @InjectModel(Access.name) private readonly accessModel: Model<Access>,
   ) {}
 
+  /**
+   * Check if a user can perform an action on a resource
+   *
+   * action: view, edit, delete
+   *
+   * @param userId
+   * @param companyId
+   * @param resource
+   * @param action
+   */
   async canPerformAction(
     userId: string,
     companyId: string,
