@@ -133,7 +133,7 @@ export class TeamController {
     }
 
     // Delete the access
-    await this.accessService.deleteAccess(access.id, companyId);
+    await this.accessService.deleteAccess(userId, companyId);
 
     return plainToInstance(AccessResponse, access, {
       excludeExtraneousValues: true,
