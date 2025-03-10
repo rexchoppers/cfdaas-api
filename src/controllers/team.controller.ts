@@ -1,13 +1,15 @@
 import { Authentication, CognitoUser } from '@nestjs-cognito/auth';
 import {
-  Body,
+  Body, ConflictException,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
+  NotFoundException,
   Param,
   Post,
-  ValidationPipe,
-} from '@nestjs/common';
+  ValidationPipe
+} from "@nestjs/common";
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import { UserService } from '../services/user.service';
 import { plainToInstance } from 'class-transformer';
@@ -55,7 +57,7 @@ export class TeamController {
   }
 
   @Post('/company/:companyId/team')
-  async createTeam(
+  async createTeamUser(
     @CognitoUser() cognitoUser: CognitoJwtPayload,
     @Param('companyId') companyId: string,
     @Body(ValidationPipe) createUserRequest: CreateUserRequest,
@@ -90,6 +92,47 @@ export class TeamController {
       companyId,
       createUserRequest.level,
     );
+
+    return plainToInstance(AccessResponse, access, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  @Delete('company/:companyId/team/:userId')
+  async deleteTeamUser(
+    @CognitoUser() cognitoUser: CognitoJwtPayload,
+    @Param('companyId') companyId: string,
+    @Param('userId') userId: string,
+  ): Promise<AccessResponse> {
+    const requester = await this.userService.getUser({
+      cognitoId: cognitoUser.sub,
+    });
+
+    const requesterAccess = await this.accessService.canPerformAction(
+      requester.id,
+      companyId,
+      'team',
+      'delete',
+    );
+
+    if (!requesterAccess.can) {
+      throw new ForbiddenException();
+    }
+
+    // If the user is themselves, deny the action
+    if (requester.id === userId) {
+      throw new ConflictException();
+    }
+
+    // Get the access for the user
+    const access = await this.accessService.getAccess(userId, companyId);
+
+    if (!access) {
+      throw new NotFoundException();
+    }
+
+    // Delete the access
+    await access.deleteOne();
 
     return plainToInstance(AccessResponse, access, {
       excludeExtraneousValues: true,
