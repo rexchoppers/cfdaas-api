@@ -114,4 +114,8 @@ export class AccessService {
 
     return await access.save();
   }
+
+  async deleteAccess(userId: string, companyId: string) {
+    return this.accessModel.deleteOne({ user: userId, company: companyId });
+  }
 }

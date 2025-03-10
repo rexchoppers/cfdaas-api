@@ -1,6 +1,7 @@
 import { Authentication, CognitoUser } from '@nestjs-cognito/auth';
 import {
-  Body, ConflictException,
+  Body,
+  ConflictException,
   Controller,
   Delete,
   ForbiddenException,
@@ -8,8 +9,8 @@ import {
   NotFoundException,
   Param,
   Post,
-  ValidationPipe
-} from "@nestjs/common";
+  ValidationPipe,
+} from '@nestjs/common';
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import { UserService } from '../services/user.service';
 import { plainToInstance } from 'class-transformer';
@@ -132,7 +133,7 @@ export class TeamController {
     }
 
     // Delete the access
-    await access.deleteOne();
+    await this.accessService.deleteAccess(access.id, companyId);
 
     return plainToInstance(AccessResponse, access, {
       excludeExtraneousValues: true,
