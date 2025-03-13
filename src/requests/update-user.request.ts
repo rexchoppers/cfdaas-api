@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional } from "class-validator";
+import { IsEmail, IsEnum, IsOptional } from 'class-validator';
 import { AccessLevel } from '../entities/access.entity';
 
 export class UpdateUserRequest {
