@@ -111,6 +111,43 @@ export class TeamController {
     });
   }
 
+  @Get('company/:companyId/team/:userId')
+  async getTeamUser(
+    @CognitoUser() cognitoUser: CognitoJwtPayload,
+    @Param('companyId') companyId,
+    @Param('userId') userId: string,
+  ): Promise<AccessResponse> {
+    const user = await this.userService.getUser({ cognitoId: cognitoUser.sub });
+
+    const access = await this.accessService.canPerformAction(
+      user.id,
+      companyId,
+      'team',
+      'view',
+    );
+
+    if (!access.can) {
+      throw new ForbiddenException();
+    }
+
+    const targetUser = await this.userService.getUser({ id: userId });
+
+    if (!targetUser) {
+      throw new NotFoundException();
+    }
+
+    // Get access for the targetUser
+    const targetUserAccess = await this.accessService.getAccess(
+      userId,
+      companyId,
+      ['user'],
+    );
+
+    return plainToInstance(AccessResponse, targetUserAccess, {
+      excludeExtraneousValues: true,
+    });
+  }
+
   @Delete('company/:companyId/team/:userId')
   async deleteTeamUser(
     @CognitoUser() cognitoUser: CognitoJwtPayload,
