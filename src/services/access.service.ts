@@ -83,7 +83,14 @@ export class AccessService {
     return { can: false };
   }
 
-  async getAccess(userId: string, companyId: string) {
+  async getAccess(userId: string, companyId: string, populate?: string[]) {
+    if (populate) {
+      return this.accessModel
+        .findOne({ user: userId, company: companyId })
+        .populate(populate)
+        .exec();
+    }
+
     return this.accessModel.findOne({
       user: userId,
       company: companyId,
