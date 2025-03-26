@@ -6,7 +6,7 @@ export enum Platform {
 }
 
 export enum GCPCredentialType {
-  JSON_SERVICE_ACCOUNT = 'json-service-account',
+  SERVICE_ACCOUNT_KEY = 'service-account-key',
 }
 
 export class CreateProfileRequest {
@@ -15,7 +15,7 @@ export class CreateProfileRequest {
 
   @ValidateIf((o) => o.platform === Platform.GCP)
   @IsEnum(GCPCredentialType, {
-    message: 'For GCP, credentialType must be: json-service-account',
+    message: 'For GCP, credentialType must be: service-account-key',
   })
   credentialType: GCPCredentialType;
 
