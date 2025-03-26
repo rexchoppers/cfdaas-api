@@ -1,10 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-
-type Platform = 'gcp' | 'aws' | 'azure';
-type GCPCredentialType = 'service_account' | 'oauth2';
-type AWSCredentialType = 'access_key' | 'role_arn';
-type CredentialType = GCPCredentialType | AWSCredentialType;
+import { Platform, CredentialType } from '../types/profile.types';
 
 @Schema({ timestamps: true })
 export class Profile extends Document {
@@ -12,34 +8,36 @@ export class Profile extends Document {
   company: Types.ObjectId;
 
   @Prop({
-    type: 'enum',
-    enum: ['gcp', 'aws', 'azure'],
+    type: String,
+    enum: Object.values(Platform),
+    required: true
   })
   platform: Platform;
 
   @Prop({
-    type: 'enum',
-    enum: ['service_account', 'oauth2', 'access_key', 'role_arn'],
+    type: String,
+    enum: Object.values(CredentialType),
+    required: true
   })
-  type: CredentialType;
+  credentialType: CredentialType;
 
   @Prop({ required: true })
   name: string;
 
-  @Prop({ nullable: true })
+  @Prop()
   description?: string;
 
-  @Prop()
+  @Prop({ required: true })
   credentialsSecretId: string;
 
-  @Prop({ nullable: true })
+  @Prop()
   region?: string;
 
-  @Prop({ nullable: true })
+  @Prop()
   projectId?: string;
 
-  @Prop({ nullable: true })
-  accountId?: string;  
+  @Prop()
+  accountId?: string;
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);

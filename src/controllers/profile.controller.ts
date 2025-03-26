@@ -15,7 +15,6 @@ import { AccessService } from 'src/services/access.service';
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import {
   CreateProfileRequest,
-  Platform,
 } from '../requests/create-profile.request';
 
 @Controller()
@@ -73,31 +72,11 @@ export class ProfileController {
     );
 
     /**
-     * GCP: json-service-account
+     * GCP: service-account-key
      *
-     * { "platform": "gcp", "type": "json-service-account",  "file": "..." }
+     * { "platform": "gcp", "type": "service-account-key",  "file": "..." }
      */
-    if (createProfileRequest.platform === Platform.GCP) {
-      switch (createProfileRequest.credentialType) {
-        case 'json-service-account':
-          const decodedCredentialData = Buffer.from(
-            createProfileRequest.credentialData,
-            'base64',
-          ).toString();
 
-          try {
-            const credentialData = JSON.parse(decodedCredentialData);
-
-
-            return credentialData;
-
-          } catch (e) {
-            throw new BadRequestException('Invalid credential data');
-          }
-
-          break;
-      }
-    }
 
     return 'test';
   }

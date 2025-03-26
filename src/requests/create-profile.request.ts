@@ -1,25 +1,40 @@
-import { IsBase64, IsEnum, IsNotEmpty, ValidateIf } from 'class-validator';
-
-export enum Platform {
-  AWS = 'AWS',
-  GCP = 'GCP',
-}
-
-export enum GCPCredentialType {
-  SERVICE_ACCOUNT_KEY = 'service-account-key',
-}
+import { IsEnum, IsString, IsNotEmpty, IsBase64, IsOptional, Validate } from 'class-validator';
+import { Platform, CredentialType, isValidCredentialTypeForPlatform } from '../types/profile.types';
 
 export class CreateProfileRequest {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
   @IsEnum(Platform)
   platform: Platform;
 
-  @ValidateIf((o) => o.platform === Platform.GCP)
-  @IsEnum(GCPCredentialType, {
-    message: 'For GCP, credentialType must be: service-account-key',
+  @IsEnum(CredentialType)
+  @Validate((value: CredentialType, args: any) => {
+    const platform = (args.object as CreateProfileRequest).platform;
+    return isValidCredentialTypeForPlatform(platform, value);
+  }, {
+    message: 'Invalid credential type for the specified platform'
   })
-  credentialType: GCPCredentialType;
+  credentialType: CredentialType;
 
-  @IsNotEmpty({ message: 'Credential data is required' })
   @IsBase64()
+  @IsNotEmpty()
   credentialData: string;
+
+  @IsString()
+  @IsOptional()
+  region?: string;
+
+  @IsString()
+  @IsOptional()
+  projectId?: string;
+
+  @IsString()
+  @IsOptional()
+  accountId?: string;
 }
