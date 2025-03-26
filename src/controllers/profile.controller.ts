@@ -1,21 +1,11 @@
+import { Controller, Post, Body, Param, ForbiddenException, Get, ValidationPipe } from '@nestjs/common';
+import { ProfileService } from '../services/profile.service';
+import { CreateProfileRequest } from '../requests/create-profile.request';
 import { Authentication, CognitoUser } from '@nestjs-cognito/auth';
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  ForbiddenException,
-  Get,
-  Param,
-  Post,
-  ValidationPipe,
-} from '@nestjs/common';
+import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import { UserService } from '../services/user.service';
 import { CompanyService } from '../services/company.service';
-import { AccessService } from 'src/services/access.service';
-import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
-import {
-  CreateProfileRequest,
-} from '../requests/create-profile.request';
+import { AccessService } from '../services/access.service';
 
 @Controller()
 @Authentication()
@@ -24,6 +14,7 @@ export class ProfileController {
     private readonly userService: UserService,
     private readonly companyService: CompanyService,
     private readonly accessService: AccessService,
+    private readonly profileService: ProfileService,
   ) {}
 
   @Get('/company/:companyId/profile')
@@ -71,13 +62,10 @@ export class ProfileController {
       'edit',
     );
 
-    /**
-     * GCP: service-account-key
-     *
-     * { "platform": "gcp", "type": "service-account-key",  "file": "..." }
-     */
+    if (!requesterAccess) {
+      throw new ForbiddenException();
+    }
 
-
-    return 'test';
+    return this.profileService.createProfile(companyId, createProfileRequest);
   }
 }
