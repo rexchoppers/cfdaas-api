@@ -66,6 +66,8 @@ export class ProfileController {
       throw new ForbiddenException();
     }
 
-    return this.profileService.createProfile(companyId, createProfileRequest);
+    const profile = await this.profileService.createProfile(companyId, createProfileRequest);
+
+    return 'Test';
   }
 }

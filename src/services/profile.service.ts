@@ -33,6 +33,8 @@ export class ProfileService {
       credentialsSecretId: 'placeholder-secret-id'
     });
 
+    console.log(profile);
+
     return profile.save();
   }
 
