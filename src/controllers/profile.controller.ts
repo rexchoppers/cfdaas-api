@@ -61,6 +61,19 @@ export class ProfileController {
       throw new ForbiddenException();
     }
 
+    const requesterAccess = await this.accessService.canPerformAction(
+      user.id,
+      companyId,
+      'profile',
+      'edit',
+    );
+
+    /**
+     * Now validate the credentialData
+     */
+
+
+
     return 'test';
   }
 }
