@@ -1,4 +1,4 @@
-import { IsIn, IsNotEmpty, IsString } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class GCPJSONServiceAccountProfile {
   @IsString()
@@ -6,4 +6,14 @@ export class GCPJSONServiceAccountProfile {
     message: "type must be 'json-service-account'",
   })
   type = 'json-service-account';
+
+  @IsString()
+  @IsIn(['gcp'], {
+    message: "type must be 'gcp'",
+  })
+  provider = 'gcp';
+
+  @IsString()
+  @IsNotEmpty()
+  file: string;
 }

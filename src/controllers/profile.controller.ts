@@ -12,7 +12,10 @@ import { UserService } from '../services/user.service';
 import { CompanyService } from '../services/company.service';
 import { AccessService } from 'src/services/access.service';
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
-import { CreateProfileRequest } from '../requests/create-profile.request';
+import {
+  CreateProfileRequest,
+  Platform,
+} from '../requests/create-profile.request';
 
 @Controller()
 @Authentication()
@@ -69,10 +72,23 @@ export class ProfileController {
     );
 
     /**
-     * Now validate the credentialData
+     * GCP: json-service-account
+     *
+     * { "platform": "gcp", "type": "json-service-account",  "file": "..." }
      */
+    if (createProfileRequest.platform === Platform.GCP) {
+      switch (createProfileRequest.credentialType) {
+        case 'json-service-account':
+          const credentialData = Buffer.from(
+            createProfileRequest.credentialData,
+            'base64',
+          ).toString();
 
+          console.log(credentialData);
 
+          break;
+      }
+    }
 
     return 'test';
   }
