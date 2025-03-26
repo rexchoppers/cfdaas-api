@@ -7,8 +7,8 @@ import {
   Get,
   Param,
   Post,
-  ValidationPipe
-} from "@nestjs/common";
+  ValidationPipe,
+} from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { CompanyService } from '../services/company.service';
 import { AccessService } from 'src/services/access.service';
@@ -80,16 +80,20 @@ export class ProfileController {
     if (createProfileRequest.platform === Platform.GCP) {
       switch (createProfileRequest.credentialType) {
         case 'json-service-account':
-          const credentialData = Buffer.from(
+          const decodedCredentialData = Buffer.from(
             createProfileRequest.credentialData,
             'base64',
           ).toString();
 
-          if (!this.isValidBase64(credentialData)) {
-            throw new BadRequestException('Invalid base64 data');
+          try {
+            const credentialData = JSON.parse(decodedCredentialData);
+
+
+            return credentialData;
+
+          } catch (e) {
+            throw new BadRequestException('Invalid credential data');
           }
-
-
 
           break;
       }
@@ -97,21 +101,4 @@ export class ProfileController {
 
     return 'test';
   }
-
-  isValidBase64(str: string): boolean {
-    // Check basic format
-    const base64Regex = /^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/;
-
-    if (!base64Regex.test(str)) return false;
-
-    try {
-      // Decode and re-encode to ensure it's valid
-      const decoded = atob(str);
-      const reEncoded = btoa(decoded);
-      return reEncoded === str.replace(/\n|\r/g, '');
-    } catch (e) {
-      return false;
-    }
-  }
-
 }
