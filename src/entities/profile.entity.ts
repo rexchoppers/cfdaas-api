@@ -3,7 +3,11 @@ import { Document, Types } from 'mongoose';
 import { Platform, CredentialType } from '../types/profile.types';
 import { User } from './user.entity';
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+})
 export class Profile extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Company', required: true })
   company: Types.ObjectId;
@@ -46,3 +50,7 @@ export class Profile extends Document {
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
+
+ProfileSchema.virtual('id').get(function () {
+  return this._id.toString();
+});
