@@ -6,6 +6,8 @@ import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 import { UserService } from '../services/user.service';
 import { CompanyService } from '../services/company.service';
 import { AccessService } from '../services/access.service';
+import { plainToInstance } from 'class-transformer';
+import { ProfileResponse } from 'src/responses/profile.response';
 
 @Controller()
 @Authentication()
@@ -68,6 +70,8 @@ export class ProfileController {
 
     const profile = await this.profileService.createProfile(companyId, createProfileRequest);
 
-    return 'Test';
+    return plainToInstance(ProfileResponse, profile, {
+      excludeExtraneousValues: true,
+    });
   }
 }
