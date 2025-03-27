@@ -27,7 +27,7 @@ export class Profile extends Document {
   @Prop()
   description?: string;
 
-  @Prop({ required: true })
+  @Prop()
   credentialsSecretId: string;
 
   @Prop()

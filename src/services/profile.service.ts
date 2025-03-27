@@ -4,11 +4,13 @@ import { Model } from 'mongoose';
 import { Profile } from '../entities/profile.entity';
 import { CreateProfileRequest } from '../requests/create-profile.request';
 import { Platform, CredentialType } from '../types/profile.types';
+import { AwsSecretsManagerService } from './aws/aws-secrets-manager.service';
 
 @Injectable()
 export class ProfileService {
   constructor(
-    @InjectModel(Profile.name) private profileModel: Model<Profile>
+    @InjectModel(Profile.name) private profileModel: Model<Profile>,
+    private readonly awsSecretsManagerService: AwsSecretsManagerService
   ) {}
 
   async createProfile(companyId: string, request: CreateProfileRequest): Promise<Profile> {
@@ -29,13 +31,21 @@ export class ProfileService {
       region: request.region,
       projectId: request.projectId,
       accountId: request.accountId,
-      // TODO: Store credentials in AWS Secrets Manager and get secret ID
-      credentialsSecretId: 'placeholder-secret-id'
+      credentialsSecretId: ''
     });
 
-    console.log(profile);
+    profile.save();
 
-    return profile.save();
+    // Create a name that links to the ID of the profile
+    const secret = await this.awsSecretsManagerService.createSecret(
+      `${companyId}-${profile.id}`,
+      JSON.stringify(credentials)
+    );
+
+    profile.credentialsSecretId = secret;
+    profile.save();
+
+    return profile;
   }
 
   private decodeAndValidateCredentials(

@@ -27,15 +27,22 @@ export class ProfileController {
     const user = await this.userService.getUser({ cognitoId: cognitoUser.sub });
     const company = await this.companyService.getCompany(companyId);
 
-    if (!company) {
+    const access = await this.accessService.canPerformAction(
+      user.id,
+      companyId,
+      'profile',
+      'view',
+    );
+
+    if (!access.can) {
       throw new ForbiddenException();
     }
 
-    const access = await this.accessService.getAccess(user.id, company.id);
+    const profiles = await this.profileService.getProfiles(companyId);
 
-    if (!access) {
-      throw new ForbiddenException();
-    }
+    return plainToInstance(ProfileResponse, profiles, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Post('/company/:companyId/profile')
