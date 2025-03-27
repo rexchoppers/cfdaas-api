@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Param, ForbiddenException, Get, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  ForbiddenException,
+  Get,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ProfileService } from '../services/profile.service';
 import { CreateProfileRequest } from '../requests/create-profile.request';
 import { Authentication, CognitoUser } from '@nestjs-cognito/auth';
@@ -75,7 +83,11 @@ export class ProfileController {
       throw new ForbiddenException();
     }
 
-    const profile = await this.profileService.createProfile(companyId, createProfileRequest);
+    const profile = await this.profileService.createProfile(
+      companyId,
+      createProfileRequest,
+      user,
+    );
 
     return plainToInstance(ProfileResponse, profile, {
       excludeExtraneousValues: true,

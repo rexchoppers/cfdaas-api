@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { UserResponse } from "./user.response";
 
 export class ProfileResponse {
   @Expose()
@@ -11,10 +12,13 @@ export class ProfileResponse {
   description?: string;
 
   @Expose()
-  platform: string;  
+  platform: string;
 
   @Expose()
   credentialType: string;
+
+  @Expose()
+  createdBy: UserResponse;
 
   @Expose()
   region?: string;

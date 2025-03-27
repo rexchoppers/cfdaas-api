@@ -5,6 +5,9 @@ import { Profile } from '../entities/profile.entity';
 import { CreateProfileRequest } from '../requests/create-profile.request';
 import { Platform, CredentialType } from '../types/profile.types';
 import { AwsSecretsManagerService } from './aws/aws-secrets-manager.service';
+import { User } from '../entities/user.entity';
+import { plainToInstance } from 'class-transformer';
+import { UserResponse } from '../responses/user.response';
 
 @Injectable()
 export class ProfileService {
@@ -13,7 +16,11 @@ export class ProfileService {
     private readonly awsSecretsManagerService: AwsSecretsManagerService
   ) {}
 
-  async createProfile(companyId: string, request: CreateProfileRequest): Promise<Profile> {
+  async createProfile(
+    companyId: string, 
+    request: CreateProfileRequest,
+    user?: User,
+  ): Promise<Profile> {
     // Decode and validate credentials
     const credentials = this.decodeAndValidateCredentials(
       request.credentialData,
@@ -31,7 +38,8 @@ export class ProfileService {
       region: request.region,
       projectId: request.projectId,
       accountId: request.accountId,
-      credentialsSecretId: ''
+      credentialsSecretId: '',
+      createdBy: user,
     });
 
     profile.save();
@@ -100,7 +108,18 @@ export class ProfileService {
   }
 
   async getProfiles(companyId: string) {
-    return this.profileModel.find({ company: companyId }).exec();
+    const profiles = await this.profileModel.find({ company: companyId }).exec();
+    
+    // Transform the createdBy field for each profile
+    return profiles.map(profile => {
+      const plainProfile = profile.toObject();
+      if (plainProfile.createdBy) {
+        plainProfile.createdBy = plainToInstance(UserResponse, plainProfile.createdBy, {
+          excludeExtraneousValues: true,
+        }) as unknown as any;
+      }
+      return plainProfile;
+    });
   }
 
   /*  async addAccess(
